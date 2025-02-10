@@ -4,13 +4,14 @@ import createMDX from '@next/mdx'
 const nextConfig = {
   pageExtensions: ['js', 'jsx', 'mdx', 'ts', 'tsx'],
   output: 'export',
-  distDir: 'dist',
   images: {
     unoptimized: true,
   },
   typescript: {
     ignoreBuildErrors: true,
   },
+  basePath: '',
+  assetPrefix: '',
 }
 
 const withMDX = createMDX({
