@@ -32,7 +32,7 @@ export default function Post({ params }: { params: { slug: string } }) {
         </header>
         
         <div className="prose prose-lg max-w-none">
-          {content}
+          <MDXRemote source={content} />
         </div>
       </article>
     </main>
