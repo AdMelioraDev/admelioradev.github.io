@@ -9,7 +9,7 @@ export async function generateStaticParams() {
   }))
 }
 
-export default function Post({ params }: { params: { slug: string } }) {
+export default async function Post({ params }: { params: { slug: string } }) {
   const { frontMatter, content } = getPostBySlug(params.slug)
   
   return (
