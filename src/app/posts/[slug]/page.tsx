@@ -1,16 +1,30 @@
 import { getPostBySlug, getAllPosts } from '@/utils/mdx'
 import { MDXRemote } from 'next-mdx-remote/rsc'
 import Link from 'next/link'
+import { Metadata } from 'next'
+
+export async function generateMetadata({ params }: { params: { slug: string } }): Promise<Metadata> {
+  const post = await getPostBySlug(params.slug)
+  return {
+    title: post.frontMatter.title,
+    description: post.frontMatter.description,
+  }
+}
 
 export async function generateStaticParams() {
-  const posts = getAllPosts()
+  const posts = await getAllPosts()
   return posts.map((post) => ({
     slug: post.slug,
   }))
 }
 
-export default async function Post({ params }: { params: { slug: string } }) {
-  const { frontMatter, content } = getPostBySlug(params.slug)
+type PageProps = {
+  params: Promise<{ slug: string }>
+}
+
+export default async function Post({ params }: PageProps) {
+  const resolvedParams = await params
+  const { frontMatter, content } = await getPostBySlug(resolvedParams.slug)
   
   return (
     <main className="max-w-4xl mx-auto py-12 px-6">
