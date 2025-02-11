@@ -6,29 +6,32 @@ export default function Home() {
   
   return (
     <main className="min-h-screen py-12 px-6 max-w-4xl mx-auto">
-      <header className="mb-12 text-center">
-        <h1 className="text-4xl font-bold mb-4">AdMelioraDev</h1>
-        <p className="text-lg text-gray-600">C++, Go, Rust, 그리고 현대적인 웹 개발에 대한 이야기</p>
+      <header className="mb-16 text-center">
+        <h1 className="text-5xl font-bold mb-4">AdMelioraDev</h1>
+        <p className="text-xl text-gray-600">매일 더 나은 개발을 위하여</p>
       </header>
       
-      <div className="grid gap-8">
+      <div className="space-y-12">
         {posts.map((post) => (
-          <Link href={`/posts/${post.slug}`} key={post.slug}>
-            <article className="border border-gray-200 rounded-lg p-6 hover:border-blue-500 transition-all hover:shadow-lg cursor-pointer">
-              <h2 className="text-2xl font-bold mb-2">{post.frontMatter.title}</h2>
-              <p className="text-gray-600 mb-4">{post.frontMatter.description}</p>
-              <div className="flex flex-wrap gap-2 mb-4">
-                {post.frontMatter.tags.map((tag: string) => (
-                  <span key={tag} className="px-3 py-1 bg-gray-100 rounded-full text-sm text-gray-700">
-                    {tag}
-                  </span>
-                ))}
-              </div>
-              <time className="text-sm text-gray-500">
-                {post.frontMatter.date}
-              </time>
-            </article>
-          </Link>
+          <article key={post.slug} className="group border border-[#333333] rounded-lg p-6">
+            <time className="text-sm text-gray-500 mb-2 block">
+              {post.frontMatter.date}
+            </time>
+            <Link href={`/posts/${post.slug}`}>
+              <h2 className="text-xl font-bold mb-3 text-[#0070f3] hover:text-white transition-colors cursor-pointer">
+                {post.frontMatter.title}
+              </h2>
+            </Link>
+            <p className="text-base text-white mb-4 leading-relaxed opacity-80">
+              {post.frontMatter.description}
+            </p>
+            <Link 
+              href={`/posts/${post.slug}`}
+              className="inline-flex items-center px-3 py-1 bg-[#1A1A1A] hover:bg-[#2A2A2A] text-[#888888] hover:text-white transition-colors rounded group font-medium text-sm"
+            >
+              Read More
+            </Link>
+          </article>
         ))}
       </div>
     </main>
