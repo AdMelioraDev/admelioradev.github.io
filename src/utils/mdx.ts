@@ -7,6 +7,7 @@ const postsDirectory = path.join(process.cwd(), 'src/content/posts')
 export type PostMetadata = {
   title: string
   date: string
+  datetime: string
   description: string
   tags: string[]
   slug: string
@@ -20,7 +21,10 @@ export function getPostBySlug(slug: string) {
   
   return {
     slug: realSlug,
-    frontMatter: data,
+    frontMatter: {
+      ...data,
+      tags: data.tags || []
+    },
     content
   }
 }
@@ -29,7 +33,11 @@ export function getAllPosts() {
   const slugs = fs.readdirSync(postsDirectory)
   const posts = slugs
     .map((slug) => getPostBySlug(slug))
-    .sort((post1, post2) => (post1.frontMatter.date > post2.frontMatter.date ? -1 : 1))
+    .sort((post1, post2) => {
+      const date1 = post1.frontMatter.datetime || post1.frontMatter.date;
+      const date2 = post2.frontMatter.datetime || post2.frontMatter.date;
+      return date1 > date2 ? -1 : 1;
+    })
   
   return posts
 }
