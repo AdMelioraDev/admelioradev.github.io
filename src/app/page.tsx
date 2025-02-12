@@ -8,26 +8,26 @@ export default function Home() {
     <main className="min-h-screen py-12 px-6 max-w-4xl mx-auto">
       <header className="mb-16 text-center">
         <h1 className="text-5xl font-bold mb-4">AdMelioraDev</h1>
-        <p className="text-xl text-gray-600">매일 더 나은 개발을 위하여</p>
+        <p className="text-xl text-gray-600 dark:text-gray-400">매일 더 나은 개발을 위하여</p>
       </header>
       
       <div className="space-y-12">
         {posts.map((post) => (
-          <article key={post.slug} className="group border border-[#333333] rounded-lg p-6">
+          <article key={post.slug} className="group border border-gray-200 dark:border-[#333333] rounded-lg p-6">
             <time className="text-sm text-gray-500 mb-2 block">
               {post.frontMatter.date}
             </time>
             <Link href={`/posts/${post.slug}`}>
-              <h2 className="text-xl font-bold mb-3 text-[#0070f3] hover:text-white transition-colors cursor-pointer">
+              <h2 className="text-xl font-bold mb-3 text-[#0070f3] hover:text-blue-700 dark:hover:text-white transition-colors cursor-pointer">
                 {post.frontMatter.title}
               </h2>
             </Link>
-            <p className="text-base text-white mb-4 leading-relaxed opacity-80">
+            <p className="text-sm text-gray-700 dark:text-white mb-4 leading-relaxed">
               {post.frontMatter.description}
             </p>
             <Link 
               href={`/posts/${post.slug}`}
-              className="inline-flex items-center px-3 py-1 bg-[#1A1A1A] hover:bg-[#2A2A2A] text-[#888888] hover:text-white transition-colors rounded group font-medium text-sm"
+              className="inline-flex items-center px-3 py-1 bg-gray-100 hover:bg-gray-200 dark:bg-[#1A1A1A] dark:hover:bg-[#2A2A2A] text-[#888888] hover:text-gray-700 dark:hover:text-white transition-colors rounded group font-medium text-sm"
             >
               Read More
             </Link>
