@@ -11,7 +11,7 @@ export default function Home() {
         <p className="text-xl text-gray-600 dark:text-gray-400">매일 더 나은 개발을 위하여</p>
       </header>
       
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {posts.map((post) => (
           <article key={post.slug} className="group border border-gray-200 dark:border-[#333333] rounded-lg p-6 h-full flex flex-col">
             <time className="text-sm text-gray-500 mb-2 block">
@@ -27,7 +27,7 @@ export default function Home() {
             </Link>
             <Link 
               href={`/posts/${post.slug}`}
-              className="inline-flex items-center px-3 py-1 bg-gray-100 hover:bg-gray-200 dark:bg-[#1A1A1A] dark:hover:bg-[#2A2A2A] text-[#888888] hover:text-gray-700 dark:hover:text-white transition-colors rounded group font-medium text-sm"
+              className="flex items-center justify-center -mx-4 -mb-4 px-3 py-1 bg-gray-100 hover:bg-gray-200 dark:bg-[#1A1A1A] dark:hover:bg-[#2A2A2A] text-[#888888] hover:text-gray-700 dark:hover:text-white transition-colors rounded group font-medium text-sm"
             >
               Read More
             </Link>
