@@ -7,7 +7,7 @@
   --foreground: #171717;
 }
 
-:root.dark {
+.dark {
   --background: #0a0a0a;
   --foreground: #ededed;
 }
@@ -26,6 +26,6 @@ img + em {
   color: #666666;
 }
 
-:root.dark img + em {
+.dark img + em {
   color: #999999;
 }
