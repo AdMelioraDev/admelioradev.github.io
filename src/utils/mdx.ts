@@ -7,13 +7,19 @@ const postsDirectory = path.join(process.cwd(), 'src/content/posts')
 export type PostMetadata = {
   title: string
   date: string
-  datetime: string
+  datetime?: string
   description: string
-  tags: string[]
+  tags?: string[]
   slug: string
 }
 
-export function getPostBySlug(slug: string) {
+export type Post = {
+  slug: string
+  frontMatter: PostMetadata
+  content: string
+}
+
+export function getPostBySlug(slug: string): Post {
   const realSlug = slug.replace(/\.mdx$/, '')
   const fullPath = path.join(postsDirectory, `${realSlug}.mdx`)
   const fileContents = fs.readFileSync(fullPath, 'utf8')
@@ -22,14 +28,18 @@ export function getPostBySlug(slug: string) {
   return {
     slug: realSlug,
     frontMatter: {
-      ...data,
-      tags: data.tags || []
+      title: data.title,
+      date: data.date,
+      datetime: data.datetime,
+      description: data.description,
+      tags: data.tags || [],
+      slug: realSlug
     },
     content
   }
 }
 
-export function getAllPosts() {
+export function getAllPosts(): Post[] {
   const slugs = fs.readdirSync(postsDirectory)
   const posts = slugs
     .map((slug) => getPostBySlug(slug))
