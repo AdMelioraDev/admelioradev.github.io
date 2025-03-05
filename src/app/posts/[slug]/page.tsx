@@ -1,9 +1,10 @@
-import { getPostBySlug, getAllPosts } from '@/utils/mdx'
+import { getPostBySlug, getAllPosts, getSeriesNavigation } from '@/utils/mdx'
 import { MDXRemote } from 'next-mdx-remote/rsc'
 import Link from 'next/link'
 import { Metadata } from 'next'
 import dayjs from 'dayjs'
 import 'dayjs/locale/ko'
+import SeriesNavigation from '@/app/components/SeriesNavigation'
 
 dayjs.locale('ko')
 
@@ -29,6 +30,7 @@ type PageProps = {
 export default async function Post({ params }: PageProps) {
   const resolvedParams = await params
   const { frontMatter, content } = await getPostBySlug(resolvedParams.slug)
+  const seriesNavigation = await getSeriesNavigation(resolvedParams.slug, { includeUnpublished: process.env.NODE_ENV === 'development' })
   
   return (
     <main className="max-w-4xl mx-auto py-12 px-6">
@@ -54,6 +56,14 @@ export default async function Post({ params }: PageProps) {
             )}
           </div>
         </header>
+        
+        {seriesNavigation.series && (
+          <SeriesNavigation 
+            series={seriesNavigation.series} 
+            prev={seriesNavigation.prev} 
+            next={seriesNavigation.next} 
+          />
+        )}
         
         <div className="border-t border-gray-200 dark:border-[#333333] mt-4 mb-8">
         </div>
