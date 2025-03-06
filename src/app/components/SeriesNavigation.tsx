@@ -24,11 +24,16 @@ export default function SeriesNavigation({ series, prev, next }: SeriesNavigatio
   const progress = Math.round((series.currentOrder / series.totalCount) * 100);
 
   return (
-    <div className="my-6 border-t border-b border-gray-200 dark:border-gray-800 py-4">
+    <div className="my-6 border-t border-gray-200 dark:border-gray-800 pt-4">
       <div className="flex justify-between items-center mb-2">
-        <h3 className="text-md font-medium">
-          {series.name} 시리즈
-        </h3>
+        <div className="flex items-center">
+          <h3 className="text-md font-medium">
+            {series.name} 시리즈
+          </h3>
+          <span className="text-xs text-gray-600 dark:text-gray-400 ml-2">
+            ({series.currentOrder}/{series.totalCount})
+          </span>
+        </div>
         <button 
           onClick={() => setIsOpen(!isOpen)}
           className="text-sm text-blue-600 dark:text-blue-400 hover:underline flex items-center"
@@ -44,20 +49,6 @@ export default function SeriesNavigation({ series, prev, next }: SeriesNavigatio
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
           </svg>
         </button>
-      </div>
-      
-      <div className="mb-3">
-        <div className="relative w-full bg-gray-200 dark:bg-gray-700 rounded-full h-3">
-          <div 
-            className="bg-teal-200 dark:bg-teal-400 h-3 rounded-full" 
-            style={{ width: `${progress}%` }}
-          ></div>
-          <div className="absolute inset-0 flex items-center justify-center text-[10px] font-medium">
-            <span className="text-gray-800 dark:text-white drop-shadow-sm">
-              ({series.currentOrder}/{series.totalCount})
-            </span>
-          </div>
-        </div>
       </div>
       
       {isOpen && (
@@ -78,7 +69,7 @@ export default function SeriesNavigation({ series, prev, next }: SeriesNavigatio
         </div>
       )}
       
-      <div className="flex justify-between text-sm">
+      <div className="flex justify-between text-sm mb-4">
         {prev ? (
           <Link
             href={`/posts/${prev.slug}`}
@@ -128,6 +119,13 @@ export default function SeriesNavigation({ series, prev, next }: SeriesNavigatio
         ) : (
           <div></div>
         )}
+      </div>
+      
+      <div className="w-full bg-gray-200 dark:bg-gray-700 h-1 mt-0">
+        <div 
+          className="bg-teal-200 dark:bg-teal-400 h-1" 
+          style={{ width: `${progress}%` }}
+        ></div>
       </div>
     </div>
   );

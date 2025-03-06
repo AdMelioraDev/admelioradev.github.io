@@ -65,8 +65,10 @@ export default async function Post({ params }: PageProps) {
           />
         )}
         
-        <div className="border-t border-gray-200 dark:border-[#333333] mt-4 mb-8">
-        </div>
+        {!seriesNavigation.series && (
+          <div className="border-t border-gray-200 dark:border-[#333333] mt-4 mb-8">
+          </div>
+        )}
         
         <div className="prose max-w-none dark:prose-invert">
           <MDXRemote source={content} />
