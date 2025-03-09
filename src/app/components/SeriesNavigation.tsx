@@ -121,10 +121,10 @@ export default function SeriesNavigation({ series, prev, next }: SeriesNavigatio
         )}
       </div>
       
-      <div className="w-full bg-gray-200 dark:bg-gray-700 h-1 mt-0">
+      <div className="w-full bg-gray-200 dark:bg-gray-700 mt-0" style={{ height: '1px' }}>
         <div 
-          className="bg-teal-200 dark:bg-teal-400 h-1" 
-          style={{ width: `${progress}%` }}
+          className="bg-teal-200 dark:bg-teal-400" 
+          style={{ width: `${progress}%`, height: '1px' }}
         ></div>
       </div>
     </div>
