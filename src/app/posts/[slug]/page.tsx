@@ -5,6 +5,7 @@ import { Metadata } from 'next'
 import dayjs from 'dayjs'
 import 'dayjs/locale/ko'
 import SeriesNavigation from '@/app/components/SeriesNavigation'
+import { TerminalSession } from '@/app/components/Terminal'
 
 dayjs.locale('ko')
 
@@ -71,7 +72,12 @@ export default async function Post({ params }: PageProps) {
         )}
         
         <div className="prose max-w-none dark:prose-invert">
-          <MDXRemote source={content} />
+          <MDXRemote 
+            source={content} 
+            components={{
+              TerminalSession
+            }} 
+          />
         </div>
       </article>
     </main>

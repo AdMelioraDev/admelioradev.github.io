@@ -39,16 +39,11 @@ Windsurf를 사용하면서 놀라웠던 점 중의 하나가 바로 이 단계�
 
 설치를 완료하고 터미널에서 버전을 확인해보니 모두 최신 버전으로 잘 설치되어 있었다:
 
-```bash
-node -v
-# v20.10.0
-
-npm -v
-# 10.2.3
-
-git --version
-# git version 2.43.0.windows.1
-```
+<TerminalSession commands={[
+  { command: "node -v", output: "v20.10.0" },
+  { command: "npm -v", output: "10.2.3" },
+  { command: "git --version", output: "git version 2.43.0.windows.1" }
+]} />
 
 이제 프로젝트를 생성할 준비가 되었다.
 
@@ -57,9 +52,9 @@ git --version
 
 테크 블로그를 위한 Next.js 프로젝트를 생성하는 것부터 시작해보자. Next.js는 공식적으로 `create-next-app` 명령어를 통해 새 프로젝트를 손쉽게 생성할 수 있다.
 
-```bash
-npx create-next-app@latest admelioradev-blog
-```
+<TerminalSession commands={[
+  { command: "npx create-next-app@latest admelioradev-blog", output: "" }
+]} />
 
 이 명령어를 실행하면 몇 가지 설정 옵션을 선택할 수 있다:
 
@@ -105,9 +100,9 @@ admelioradev-blog/
 
 Next.js에서 MDX를 사용하기 위해서는 추가적인 패키지 설치가 필요하다.
 
-```bash
-npm install @next/mdx @mdx-js/loader @mdx-js/react
-```
+<TerminalSession commands={[
+  { command: "npm install @next/mdx @mdx-js/loader @mdx-js/react", output: "" }
+]} />
 
 그리고 `next.config.js` 파일을 수정하여 MDX 파일을 처리할 수 있도록 설정한다:
 
@@ -132,15 +127,15 @@ module.exports = withMDX(nextConfig);
 
 블로그 포스트를 관리하기 위한 디렉토리 구조를 만들어보자. `src/content/posts` 디렉토리를 생성하여 모든 블로그 포스트를 이곳에 저장할 것이다.
 
-```bash
-mkdir -p src/content/posts
-```
+<TerminalSession commands={[
+  { command: "mkdir -p src/content/posts", output: "" }
+]} />
 
 이제 첫 번째 블로그 포스트 파일을 생성해보자:
 
-```bash
-touch src/content/posts/first-post.mdx
-```
+<TerminalSession commands={[
+  { command: "touch src/content/posts/first-post.mdx", output: "" }
+]} />
 
 ## 블로그 포스트 메타데이터 관리
 
@@ -167,13 +162,13 @@ export interface PostMetadata {
 
 저장소를 생성한 후, 로컬 프로젝트를 이 저장소에 연결한다:
 
-```bash
-git init
-git add .
-git commit -m "Initial commit: Project setup"
-git remote add origin https://github.com/admelioradev/admelioradev.github.io.git
-git push -u origin main
-```
+<TerminalSession commands={[
+  { command: "git init", output: "" },
+  { command: "git add .", output: "" },
+  { command: "git commit -m \"Initial commit: Project setup\"", output: "" },
+  { command: "git remote add origin https://github.com/admelioradev/admelioradev.github.io.git", output: "" },
+  { command: "git push -u origin main", output: "" }
+]} />
 
 ## GitHub Pages 배포 설정
 
@@ -210,10 +205,10 @@ module.exports = withMDX(nextConfig);
 
 GitHub Actions를 사용하여 자동 배포 파이프라인을 설정해보자. `.github/workflows` 디렉토리를 생성하고 `deploy.yml` 파일을 추가한다:
 
-```bash
-mkdir -p .github/workflows
-touch .github/workflows/deploy.yml
-```
+<TerminalSession commands={[
+  { command: "mkdir -p .github/workflows", output: "" },
+  { command: "touch .github/workflows/deploy.yml", output: "" }
+]} />
 
 `deploy.yml` 파일에 다음 내용을 추가한다:
 
@@ -269,11 +264,11 @@ jobs:
 
 이제 모든 설정이 완료되었으니, 변경 사항을 커밋하고 GitHub에 푸시해보자:
 
-```bash
-git add .
-git commit -m "Setup GitHub Pages deployment"
-git push
-```
+<TerminalSession commands={[
+  { command: "git add .", output: "" },
+  { command: "git commit -m \"Setup GitHub Pages deployment\"", output: "" },
+  { command: "git push", output: "" }
+]} />
 
 GitHub 저장소의 Actions 탭에서 워크플로우가 실행되는 것을 확인할 수 있다. 워크플로우가 성공적으로 완료되면, `https://admelioradev.github.io`에서 배포된 블로그를 확인할 수 있다.
 
