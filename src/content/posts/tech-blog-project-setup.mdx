@@ -73,26 +73,23 @@ TypeScript, ESLint, Tailwind CSS, src 디렉토리, App Router를 모두 사용�
 
 생성된 프로젝트의 기본 구조는 다음과 같다:
 
-```
-admelioradev-blog/
-├── .eslintrc.json
-├── .gitignore
-├── next.config.js
-├── next-env.d.ts
-├── package.json
-├── postcss.config.js
-├── public/
-├── README.md
-├── src/
-│   ├── app/
-│   │   ├── favicon.ico
-│   │   ├── globals.css
-│   │   ├── layout.tsx
-│   │   └── page.tsx
-│   └── ...
-├── tailwind.config.js
-└── tsconfig.json
-```
+<ProjectExplorer structure={`admelioradev-blog/
+  src/
+    app/
+      favicon.ico
+      globals.css
+      layout.tsx
+      page.tsx
+  public/
+  eslint.config.mjs
+  .gitignore
+  next.config.ts
+  next-env.d.ts
+  package.json
+  package-lock.json
+  postcss.config.mjs
+  README.md
+  tsconfig.json`} />
 
 이 기본 구조를 테크 블로그에 맞게 확장해 나갈 것이다. 먼저, 블로그 포스트를 관리하기 위한 구조를 추가해보자.
 

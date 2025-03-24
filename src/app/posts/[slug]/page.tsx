@@ -6,6 +6,7 @@ import dayjs from 'dayjs'
 import 'dayjs/locale/ko'
 import SeriesNavigation from '@/app/components/SeriesNavigation'
 import { TerminalSession } from '@/app/components/Terminal'
+import ProjectExplorer from '@/app/components/ProjectExplorer'
 
 dayjs.locale('ko')
 
@@ -75,7 +76,8 @@ export default async function Post({ params }: PageProps) {
           <MDXRemote 
             source={content} 
             components={{
-              TerminalSession
+              TerminalSession,
+              ProjectExplorer
             }} 
           />
         </div>
