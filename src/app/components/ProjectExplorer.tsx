@@ -1,10 +1,11 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useMemo } from "react";
 
 type FileNode = {
   name: string;
   type: "file" | "directory";
+  description?: string;
   children?: FileNode[];
 };
 
@@ -12,6 +13,7 @@ type ProjectExplorerProps = {
   structure: string;
   className?: string;
   title?: string;
+  showDescriptions?: boolean;
 };
 
 // 간단한 들여쓰기 기반 구조 문자열을 파싱하는 함수
@@ -19,11 +21,15 @@ const parseSimpleStructure = (structureStr: string): FileNode => {
   const lines = structureStr.trim().split("\n");
   
   // 루트 폴더 이름 추출
-  const rootName = lines[0].trim().replace(/\/$/, "");
+  const rootLine = lines[0].trim();
+  const rootParts = rootLine.split(" // ");
+  const rootName = rootParts[0].replace(/\/$/, "");
+  const rootDescription = rootParts.length > 1 ? rootParts[1].trim() : undefined;
   
   const root: FileNode = {
     name: rootName,
     type: "directory",
+    description: rootDescription,
     children: [],
   };
   
@@ -39,8 +45,11 @@ const parseSimpleStructure = (structureStr: string): FileNode => {
     const indentation = line.search(/\S|$/);
     const level = Math.floor(indentation / 2) + 1;
     
-    // 파일/폴더 이름 추출 (앞뒤 공백 제거)
-    const name = line.trim();
+    // 파일/폴더 이름과 설명 추출
+    const trimmedLine = line.trim();
+    const parts = trimmedLine.split(" // ");
+    const name = parts[0].trim();
+    const description = parts.length > 1 ? parts[1].trim() : undefined;
     
     // 폴더인지 파일인지 판별 (이름 끝에 / 있으면 폴더)
     const isDirectory = name.endsWith("/");
@@ -49,6 +58,7 @@ const parseSimpleStructure = (structureStr: string): FileNode => {
     const newNode: FileNode = {
       name: cleanName,
       type: isDirectory ? "directory" : "file",
+      description,
       children: isDirectory ? [] : undefined,
     };
     
@@ -71,42 +81,27 @@ const parseSimpleStructure = (structureStr: string): FileNode => {
 };
 
 // 파일 아이콘 가져오기
-const getFileIcon = (fileName: string) => {
-  const extension = fileName.split('.').pop()?.toLowerCase() || '';
-  
-  // 폴더 아이콘은 그대로 유지
-  if (extension === '') {
-    return (
-      <svg className="w-4 h-4" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <path d="M2 3.5C2 2.67157 2.67157 2 3.5 2H6.5C7.32843 2 8 2.67157 8 3.5V4H12.5C13.3284 4 14 4.67157 14 5.5V12.5C14 13.3284 13.3284 14 12.5 14H3.5C2.67157 14 2 13.3284 2 12.5V3.5Z" stroke="#6B7280" strokeWidth="1" fill="none" />
-      </svg>
-    );
-  }
-  
+const getFileIcon = () => {
   // 모든 파일 아이콘은 A4 용지처럼 직사각형에 가깝게, 오른쪽 상단이 접힌 모양으로 통일
   return (
     <svg className="w-4 h-4" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-      {/* 문서 본체 */}
       <path d="M4.5 2H9V4C9 4.55228 9.44772 5 10 5H12.5V13C12.5 13.5523 12.0523 14 11.5 14H4.5C3.94772 14 3.5 13.5523 3.5 13V3C3.5 2.44772 3.94772 2 4.5 2Z" stroke="#6B7280" strokeWidth="1" fill="none" />
-      {/* 접힌 모서리의 대각선 */}
       <path d="M9 2L12.5 5" stroke="#6B7280" strokeWidth="1" fill="none" />
     </svg>
   );
 };
 
-// 특수 폴더 아이콘 (src, public 등)
-const getFolderIcon = () => {
-  return (
-    <svg className="w-4 h-4" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <path 
-        d="M14 4.5V12.5C14 13.0523 13.5523 13.5 13 13.5H3C2.44772 13.5 2 13.0523 2 12.5V3.5C2 2.94772 2.44772 2.5 3 2.5H7L8.5 4H13C13.5523 4 14 4.22386 14 4.5Z" 
-        stroke="#757575" 
-        strokeWidth="1" 
-        fill="none"
-      />
-    </svg>
-  );
-};
+// 폴더 아이콘
+const FolderIcon = () => (
+  <svg className="w-4 h-4" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path 
+      d="M14 4.5V12.5C14 13.0523 13.5523 13.5 13 13.5H3C2.44772 13.5 2 13.0523 2 12.5V3.5C2 2.94772 2.44772 2.5 3 2.5H7L8.5 4H13C13.5523 4 14 4.22386 14 4.5Z" 
+      stroke="#757575" 
+      strokeWidth="1" 
+      fill="none"
+    />
+  </svg>
+);
 
 // 화살표 아이콘 컴포넌트
 const ChevronIcon = ({ isOpen }: { isOpen: boolean }) => (
@@ -123,75 +118,103 @@ const ChevronIcon = ({ isOpen }: { isOpen: boolean }) => (
   </svg>
 );
 
-// 디렉토리 아이콘
-const FolderIcon = () => {
-  return getFolderIcon();
-};
-
-// 파일 노드 렌더링 컴포넌트
-const FileTreeNode = ({ node, level = 0 }: { node: FileNode; level?: number }) => {
-  const [isOpen, setIsOpen] = useState(true);
-  
-  const toggleOpen = () => {
-    if (node.type === "directory") {
-      setIsOpen(!isOpen);
-    }
-  };
-  
-  // 디렉토리 먼저, 파일 나중에 정렬
-  const sortedChildren = node.children ? [...node.children].sort((a, b) => {
-    // 디렉토리가 파일보다 먼저 오도록 정렬
-    if (a.type === 'directory' && b.type === 'file') return -1;
-    if (a.type === 'file' && b.type === 'directory') return 1;
-    
-    // 같은 타입이면 이름순으로 정렬
-    return a.name.localeCompare(b.name);
-  }) : [];
-  
-  // 하위 요소가 있는지 확인
-  const hasChildren = node.type === "directory" && node.children && node.children.length > 0;
-  
-  return (
-    <div className="file-node">
-      <div 
-        className={`flex items-center py-1 ${node.type === "directory" ? "cursor-pointer font-medium" : ""}`}
-        onClick={toggleOpen}
-        style={{ paddingLeft: `${level * 1.5}rem` }}
-      >
-        {/* 하위 요소가 있는 디렉토리에만 화살표 표시 */}
-        <span className="mr-1 w-3 flex-shrink-0">
-          {hasChildren ? <ChevronIcon isOpen={isOpen} /> : <span className="w-3"></span>}
-        </span>
-        
-        <span className="mr-2 flex-shrink-0">
-          {node.type === "directory" ? (
-            <FolderIcon />
-          ) : (
-            getFileIcon(node.name)
-          )}
-        </span>
-        <span className={node.type === "directory" ? "text-blue-600 dark:text-blue-400" : "text-gray-700 dark:text-gray-300"}>
-          {node.name}
-        </span>
-      </div>
-      
-      {node.type === "directory" && isOpen && node.children && (
-        <div className="directory-children">
-          {sortedChildren.map((child, index) => (
-            <FileTreeNode key={`${child.name}-${index}`} node={child} level={level + 1} />
-          ))}
-        </div>
-      )}
-    </div>
-  );
-};
-
 // 메인 프로젝트 구조 컴포넌트
 const ProjectExplorer: React.FC<ProjectExplorerProps> = ({ 
   structure, 
-  title = "프로젝트 구조"
+  title = "프로젝트 구조",
+  showDescriptions = false
 }) => {
   const parsedStructure = parseSimpleStructure(structure);
+  
+  // 파일 노드 렌더링 컴포넌트
+  const FileTreeNode = ({ 
+    node, 
+    level = 0,
+    showDescriptions: showDesc
+  }: { 
+    node: FileNode; 
+    level?: number;
+    showDescriptions: boolean;
+  }) => {
+    const [isOpen, setIsOpen] = useState(true);
+    
+    const toggleOpen = () => {
+      if (node.type === "directory") {
+        setIsOpen(!isOpen);
+      }
+    };
+    
+    // 디렉토리 먼저, 파일 나중에 정렬
+    const sortedChildren = useMemo(() => node.children ? [...node.children].sort((a, b) => {
+      // 디렉토리가 파일보다 먼저 오도록 정렬
+      if (a.type === 'directory' && b.type === 'file') return -1;
+      if (a.type === 'file' && b.type === 'directory') return 1;
+      
+      // 같은 타입이면 이름순으로 정렬
+      return a.name.localeCompare(b.name);
+    }) : [], [node.children]);
+    
+    // 하위 요소가 있는지 확인
+    const hasChildren = useMemo(() => 
+      node.type === "directory" && node.children && node.children.length > 0
+    , [node.type, node.children]);
+    
+    return (
+      <div className="file-node relative">
+        <div 
+          className={`flex items-start py-1 relative ${node.type === "directory" ? "cursor-pointer" : ""}`}
+          onClick={toggleOpen}
+          style={{ paddingLeft: `${level * 1.5}rem` }}
+        >
+          {/* 하위 요소가 있는 디렉토리에만 화살표 표시 */}
+          <span className="mr-1 w-3 flex-shrink-0 mt-1">
+            {hasChildren ? <ChevronIcon isOpen={isOpen} /> : <span className="w-3"></span>}
+          </span>
+          
+          <span className="mr-2 flex-shrink-0 mt-1">
+            {node.type === "directory" ? (
+              <FolderIcon />
+            ) : (
+              getFileIcon()
+            )}
+          </span>
+          
+          <div className="flex flex-col sm:block">
+            <span className={`${node.type === "directory" ? "text-blue-600 dark:text-blue-400 font-medium" : "text-gray-700 dark:text-gray-300"}`}>
+              {node.name}
+            </span>
+            
+            {/* 모바일에서만 보이는 설명 */}
+            {node.description && showDesc && (
+              <div className="text-xs text-gray-500 dark:text-gray-400 mt-0.5 break-words sm:hidden">
+                <span className="opacity-70">{`// `}</span>{node.description}
+              </div>
+            )}
+          </div>
+          
+          {/* 데스크톱에서만 보이는 설명 (절대 위치로 고정) */}
+          {node.description && showDesc && (
+            <div className="hidden sm:block absolute text-xs text-gray-500 dark:text-gray-400 break-words" style={{ left: "16rem" }}>
+              <span className="opacity-70">{`// `}</span>{node.description}
+            </div>
+          )}
+        </div>
+        
+        {node.type === "directory" && isOpen && node.children && (
+          <div className="directory-children">
+            {sortedChildren.map((child, index) => (
+              <FileTreeNode 
+                key={`${child.name}-${index}`} 
+                node={child} 
+                level={level + 1}
+                showDescriptions={showDesc}
+              />
+            ))}
+          </div>
+        )}
+      </div>
+    );
+  };
   
   return (
     <div className="mb-6 rounded-md overflow-hidden border border-gray-200 dark:border-gray-700 text-sm">
@@ -202,9 +225,12 @@ const ProjectExplorer: React.FC<ProjectExplorerProps> = ({
           </div>
         </div>
       </div>
-      <div className="bg-[#f6f8fa] dark:bg-[#0f111a] p-4 overflow-auto">
-        <div className="font-mono text-xs">
-          <FileTreeNode node={parsedStructure} />
+      <div className="p-4 bg-white dark:bg-[#24283b]">
+        <div className="project-explorer-container">
+          <FileTreeNode 
+            node={parsedStructure}
+            showDescriptions={showDescriptions}
+          />
         </div>
       </div>
     </div>
