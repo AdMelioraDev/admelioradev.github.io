@@ -6,6 +6,7 @@ type FileNode = {
   name: string;
   type: "file" | "directory";
   description?: string;
+  detailedDescription?: string;
   children?: FileNode[];
 };
 
@@ -24,12 +25,22 @@ const parseSimpleStructure = (structureStr: string): FileNode => {
   const rootLine = lines[0].trim();
   const rootParts = rootLine.split(" // ");
   const rootName = rootParts[0].replace(/\/$/, "");
-  const rootDescription = rootParts.length > 1 ? rootParts[1].trim() : undefined;
+  
+  // 설명과 상세 설명 추출
+  let rootDescription: string | undefined;
+  let rootDetailedDescription: string | undefined;
+  
+  if (rootParts.length > 1) {
+    const descriptionParts = rootParts[1].split(" ## ");
+    rootDescription = descriptionParts[0].trim();
+    rootDetailedDescription = descriptionParts.length > 1 ? descriptionParts[1].trim() : undefined;
+  }
   
   const root: FileNode = {
     name: rootName,
     type: "directory",
     description: rootDescription,
+    detailedDescription: rootDetailedDescription,
     children: [],
   };
   
@@ -49,7 +60,16 @@ const parseSimpleStructure = (structureStr: string): FileNode => {
     const trimmedLine = line.trim();
     const parts = trimmedLine.split(" // ");
     const name = parts[0].trim();
-    const description = parts.length > 1 ? parts[1].trim() : undefined;
+    
+    // 설명과 상세 설명 추출
+    let description: string | undefined;
+    let detailedDescription: string | undefined;
+    
+    if (parts.length > 1) {
+      const descriptionParts = parts[1].split(" ## ");
+      description = descriptionParts[0].trim();
+      detailedDescription = descriptionParts.length > 1 ? descriptionParts[1].trim() : undefined;
+    }
     
     // 폴더인지 파일인지 판별 (이름 끝에 / 있으면 폴더)
     const isDirectory = name.endsWith("/");
@@ -59,6 +79,7 @@ const parseSimpleStructure = (structureStr: string): FileNode => {
       name: cleanName,
       type: isDirectory ? "directory" : "file",
       description,
+      detailedDescription,
       children: isDirectory ? [] : undefined,
     };
     
@@ -118,6 +139,21 @@ const ChevronIcon = ({ isOpen }: { isOpen: boolean }) => (
   </svg>
 );
 
+// 드롭다운 아이콘 컴포넌트
+const DropdownIcon = ({ isOpen }: { isOpen: boolean }) => (
+  <svg 
+    className={`w-3 h-3 transition-transform ${isOpen ? 'rotate-180' : ''}`} 
+    viewBox="0 0 16 16" 
+    fill="none" 
+    stroke="currentColor" 
+    strokeWidth="1.5" 
+    strokeLinecap="round" 
+    strokeLinejoin="round"
+  >
+    <path d="M2 6L8 12L14 6" />
+  </svg>
+);
+
 // 메인 프로젝트 구조 컴포넌트
 const ProjectExplorer: React.FC<ProjectExplorerProps> = ({ 
   structure, 
@@ -137,11 +173,17 @@ const ProjectExplorer: React.FC<ProjectExplorerProps> = ({
     showDescriptions: boolean;
   }) => {
     const [isOpen, setIsOpen] = useState(true);
+    const [showDetailedDesc, setShowDetailedDesc] = useState(false);
     
     const toggleOpen = () => {
       if (node.type === "directory") {
         setIsOpen(!isOpen);
       }
+    };
+    
+    const toggleDetailedDesc = (e: React.MouseEvent) => {
+      e.stopPropagation();
+      setShowDetailedDesc(!showDetailedDesc);
     };
     
     // 디렉토리 먼저, 파일 나중에 정렬
@@ -159,8 +201,11 @@ const ProjectExplorer: React.FC<ProjectExplorerProps> = ({
       node.type === "directory" && node.children && node.children.length > 0
     , [node.type, node.children]);
     
+    // 상세 설명이 있는지 확인
+    const hasDetailedDesc = node.detailedDescription !== undefined;
+    
     return (
-      <div className="file-node relative">
+      <div className={`file-node relative ${showDetailedDesc ? 'mb-2' : ''}`}>
         <div 
           className={`flex items-start py-1 relative ${node.type === "directory" ? "cursor-pointer" : ""}`}
           onClick={toggleOpen}
@@ -187,18 +232,52 @@ const ProjectExplorer: React.FC<ProjectExplorerProps> = ({
             {/* 모바일에서만 보이는 설명 */}
             {node.description && showDesc && (
               <div className="text-xs text-gray-500 dark:text-gray-400 mt-0.5 break-words sm:hidden">
-                <span className="opacity-70">{`// `}</span>{node.description}
+                <span className="opacity-70 mr-1">{`//`}</span>{node.description}
+                {hasDetailedDesc && (
+                  <button 
+                    className="ml-1 inline-flex items-center"
+                    onClick={toggleDetailedDesc}
+                    aria-label={showDetailedDesc ? "접기" : "펼치기"}
+                  >
+                    <DropdownIcon isOpen={showDetailedDesc} />
+                  </button>
+                )}
+              </div>
+            )}
+            
+            {/* 모바일에서만 보이는 상세 설명. 상세 설명 카드 스타일 배경색은 여기에서 설정한다. */}
+            {hasDetailedDesc && showDetailedDesc && showDesc && (
+              <div className="text-xs text-gray-600 dark:text-gray-300 mt-1 mb-1 py-1.5 px-2 bg-gray-100 dark:bg-[#2a3042] rounded-md sm:hidden inline-block">
+                {node.detailedDescription}
               </div>
             )}
           </div>
           
           {/* 데스크톱에서만 보이는 설명 (절대 위치로 고정) */}
           {node.description && showDesc && (
-            <div className="hidden sm:block absolute text-xs text-gray-500 dark:text-gray-400 break-words" style={{ left: "16rem" }}>
-              <span className="opacity-70">{`// `}</span>{node.description}
+            <div className="hidden sm:flex absolute text-xs text-gray-500 dark:text-gray-400 break-words items-center" style={{ left: "16rem" }}>
+              <span className="opacity-70 mr-1">{`//`}</span>{node.description}
+              {hasDetailedDesc && (
+                <button 
+                  className="ml-1 inline-flex items-center"
+                  onClick={toggleDetailedDesc}
+                  aria-label={showDetailedDesc ? "접기" : "펼치기"}
+                >
+                  <DropdownIcon isOpen={showDetailedDesc} />
+                </button>
+              )}
             </div>
           )}
         </div>
+        
+        {/* 상세 설명 - 데스크탑. 상세 설명 카드 스타일 배경색은 여기에서 설정한다. */}
+        {hasDetailedDesc && showDetailedDesc && showDesc && (
+          <div className="hidden sm:block mt-1 mb-3 relative">
+            <div className="text-xs text-gray-600 dark:text-gray-300 py-1.5 px-2 bg-gray-100 dark:bg-[#2a3042] rounded-md ml-[16rem] shadow-sm inline-block">
+              {node.detailedDescription}
+            </div>
+          </div>
+        )}
         
         {node.type === "directory" && isOpen && node.children && (
           <div className="directory-children">
@@ -225,7 +304,7 @@ const ProjectExplorer: React.FC<ProjectExplorerProps> = ({
           </div>
         </div>
       </div>
-      <div className="p-4 bg-white dark:bg-[#24283b]">
+      <div className="p-4 bg-white dark:bg-[#1a1b26]">
         <div className="project-explorer-container">
           <FileTreeNode 
             node={parsedStructure}
