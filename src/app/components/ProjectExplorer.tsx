@@ -7,6 +7,7 @@ type FileNode = {
   type: "file" | "directory";
   description?: string;
   detailedDescription?: string;
+  status?: "added" | "removed";
   children?: FileNode[];
 };
 
@@ -24,7 +25,18 @@ const parseSimpleStructure = (structureStr: string): FileNode => {
   // 루트 폴더 이름 추출
   const rootLine = lines[0].trim();
   const rootParts = rootLine.split(" // ");
-  const rootName = rootParts[0].replace(/\/$/, "");
+  
+  // 상태 표시(@+/@-)가 있는지 확인
+  let rootName = rootParts[0].trim();
+  let rootStatus: "added" | "removed" | undefined;
+  
+  if (rootName.includes("@+")) {
+    rootName = rootName.replace("@+", "").trim();
+    rootStatus = "added";
+  } else if (rootName.includes("@-")) {
+    rootName = rootName.replace("@-", "").trim();
+    rootStatus = "removed";
+  }
   
   // 설명과 상세 설명 추출
   let rootDescription: string | undefined;
@@ -41,6 +53,7 @@ const parseSimpleStructure = (structureStr: string): FileNode => {
     type: "directory",
     description: rootDescription,
     detailedDescription: rootDetailedDescription,
+    status: rootStatus,
     children: [],
   };
   
@@ -59,7 +72,18 @@ const parseSimpleStructure = (structureStr: string): FileNode => {
     // 파일/폴더 이름과 설명 추출
     const trimmedLine = line.trim();
     const parts = trimmedLine.split(" // ");
-    const name = parts[0].trim();
+    let name = parts[0].trim();
+    
+    // 상태 표시(@+/@-)가 있는지 확인
+    let status: "added" | "removed" | undefined;
+    
+    if (name.includes("@+")) {
+      name = name.replace("@+", "").trim();
+      status = "added";
+    } else if (name.includes("@-")) {
+      name = name.replace("@-", "").trim();
+      status = "removed";
+    }
     
     // 설명과 상세 설명 추출
     let description: string | undefined;
@@ -80,6 +104,7 @@ const parseSimpleStructure = (structureStr: string): FileNode => {
       type: isDirectory ? "directory" : "file",
       description,
       detailedDescription,
+      status,
       children: isDirectory ? [] : undefined,
     };
     
@@ -154,6 +179,21 @@ const DropdownIcon = ({ isOpen }: { isOpen: boolean }) => (
   </svg>
 );
 
+// 상태 표시 아이콘 컴포넌트
+const StatusIcon = ({ status, isFile }: { status?: "added" | "removed"; isFile?: boolean }) => {
+  if (!status) return null;
+  
+  return status === "added" ? (
+    <span className={`absolute -bottom-1 ${isFile ? 'right-[0.1rem]' : 'right-0'} text-green-600 font-bold text-xs drop-shadow-md`}>
+      +
+    </span>
+  ) : (
+    <span className="absolute -bottom-1 right-0 text-red-600 font-bold text-[0.85rem] drop-shadow-md">
+      <span className="inline-block transform scale-x-125">-</span>
+    </span>
+  );
+};
+
 // 메인 프로젝트 구조 컴포넌트
 const ProjectExplorer: React.FC<ProjectExplorerProps> = ({ 
   structure, 
@@ -216,11 +256,17 @@ const ProjectExplorer: React.FC<ProjectExplorerProps> = ({
             {hasChildren ? <ChevronIcon isOpen={isOpen} /> : <span className="w-3"></span>}
           </span>
           
-          <span className="mr-2 flex-shrink-0 mt-1">
+          <span className="mr-2 flex-shrink-0 mt-1 relative">
             {node.type === "directory" ? (
-              <FolderIcon />
+              <>
+                <FolderIcon />
+                <StatusIcon status={node.status} />
+              </>
             ) : (
-              getFileIcon()
+              <>
+                {getFileIcon()}
+                <StatusIcon status={node.status} isFile={true} />
+              </>
             )}
           </span>
           
@@ -297,9 +343,9 @@ const ProjectExplorer: React.FC<ProjectExplorerProps> = ({
   
   return (
     <div className="mb-6 rounded-md overflow-hidden border border-gray-200 dark:border-gray-700 text-sm">
-      <div className="px-4 py-2 bg-[#e9ecef] dark:bg-[#1a1b26]">
+      <div className="px-4 py-2 bg-[#e9ecef] dark:bg-[#24283b]">
         <div className="flex items-center justify-between">
-          <div className="text-xs font-medium">
+          <div className="text-xs font-medium text-gray-800 dark:text-gray-200">
             {title}
           </div>
         </div>
